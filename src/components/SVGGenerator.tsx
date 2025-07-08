@@ -205,16 +205,16 @@ export const SVGGenerator: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button onClick={generateArt} className="flex-1" variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Regenerate
-            </Button>
-            <Button onClick={downloadSVG} className="flex-1">
-              <Download className="w-4 h-4 mr-2" />
-              Download SVG
-            </Button>
-          </div>
+          <div className="flex flex-wrap gap-3 pt-4">
+          <Button onClick={generateArt} className="flex-1 min-w-0" variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Regenerate
+          </Button>
+          <Button onClick={downloadSVG} className="flex-1 min-w-[140px]">
+            <Download className="w-4 h-4 mr-2" />
+            Download SVG
+          </Button>
+        </div>
         </CardContent>
       </Card>
 

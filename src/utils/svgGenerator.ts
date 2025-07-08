@@ -44,18 +44,42 @@ export const generateSVG = (params: SVGParameters): string => {
   console.log('Generating SVG with parameters:', params);
   
   const svgTemplate = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${params.width}" height="${params.height}" viewBox="0 0 ${params.width} ${params.height}" style="background-color: ${params.backgroundColor}">
+<svg xmlns="http://www.w3.org/2000/svg" width="${params.width}" height="${params.height}" viewBox="0 0 ${params.width} ${params.height}" style="background-color: ${params.backgroundColor}; ">
+<style type="text/css">
+<![CDATA[
+
+  {style}
+  @keyframes moveHorizontal {
+    0% {
+        transform: translateX(-${params.width}px);
+    }
+    100% {
+        transform: translateX(${params.width}px);
+    }
+  }
+    @keyframes moveVertical {
+      0% {
+          transform: translateY(-${params.height}px);
+      }
+      100% {
+          transform: translateY(${params.height}px);
+      }
+    }
+]]>
+</style>
+  
   {lines}
 </svg>`;
 
   const linesTemplate = `<g xmlns="http://www.w3.org/2000/svg" stroke="#{color}" stroke-width="{width}" stroke-linecap="butt" opacity="{opacity}">
-      <path d="{the_lines}"/>
+      <path d="{the_lines}" class="{classname}"/>
   </g>`;
 
   const singleLineTemplateH = `M{xstart} {y} H{xend} `;
   const singleLineTemplateV = `M{ystart} {x} V{yend} `;
 
   const lineGroups: string[] = [];
+  const styles: string[] = [];
 
   // Calculate normal distribution parameters for stroke width
   const strokeMean = params.avgStrokeWidth;
@@ -79,17 +103,27 @@ export const generateSVG = (params: SVGParameters): string => {
         .replace('{y}', y.toString())
         .replace('{xend}', xend.toString())
       );
+      
     }
     
     const strokeWidth = Math.max(0.1, randomNormal(strokeMean, strokeStddev));
     const color = randomChoice(params.lineColors).replace('#', '');
-    
+    const styleName = `horizontal_line_${i}`
+    const style = `.${styleName} {
+      animation: moveHorizontal ${randomTriangular(3,6,25)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+    }`  
+    styles.push(style)
     lineGroups.push(linesTemplate
       .replace('{opacity}', opacity.toString())
       .replace('{width}', strokeWidth.toString())
       .replace('{color}', color)
+      .replace('{classname}', styleName)
       .replace('{the_lines}', lines.join(' '))
+
     );
+
+    
   }
 
   // Generate vertical lines from edges
@@ -114,17 +148,23 @@ export const generateSVG = (params: SVGParameters): string => {
       lines.push(singleLineTemplateV
         .replace('{ystart}', x2.toString())
         .replace('{x}', y.toString())
-        .replace('{yend}', params.width.toString())
+        .replace('{yend}', "200")
       );
     }
     
     const strokeWidth = Math.max(0.1, randomNormal(strokeMean * 0.63, strokeStddev * 0.63));
     const color = randomChoice(params.lineColors).replace('#', '');
-    
+    const styleName = `vertical_line_${i}`
+    const style = `.${styleName} {
+      animation: moveVertical ${randomTriangular(3,6,25)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+    }`  
+    styles.push(style)
     lineGroups.push(linesTemplate
       .replace('{opacity}', opacity.toString())
       .replace('{width}', strokeWidth.toString())
       .replace('{color}', color)
+      .replace('{classname}', styleName)
       .replace('{the_lines}', lines.join(' '))
     );
   }
@@ -152,17 +192,23 @@ export const generateSVG = (params: SVGParameters): string => {
     
     const strokeWidth = Math.max(0.1, randomNormal(strokeMean * 0.63, strokeStddev * 0.63));
     const color = randomChoice(params.lineColors).replace('#', '');
-    
+    const styleName = `vertical_line_${i}`
+    const style = `.${styleName} {
+      animation: moveVertical ${randomTriangular(3,6,25)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+    }`  
+    styles.push(style)
     lineGroups.push(linesTemplate
       .replace('{opacity}', opacity.toString())
       .replace('{width}', strokeWidth.toString())
       .replace('{color}', color)
+      .replace('{classname}', styleName)
       .replace('{the_lines}', lines.join(' '))
     );
   }
 
   console.log('Generated', lineGroups.length, 'line groups');
   
-  const finalSvg = svgTemplate.replace('{lines}', lineGroups.join('\n'));
+  const finalSvg = svgTemplate.replace('{style}', styles.join('\n')).replace('{lines}', lineGroups.join('\n'));
   return finalSvg;
 };
