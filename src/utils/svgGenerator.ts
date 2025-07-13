@@ -8,6 +8,9 @@ interface SVGParameters {
   avgOpacity: number;
   backgroundColor: string;
   lineColors: string[];
+  enableAnimation: boolean;
+  animationSpeedMin: number;
+  animationSpeedMax: number;
 }
 
 // Utility function for triangular distribution
@@ -51,17 +54,21 @@ export const generateSVG = (params: SVGParameters): string => {
   {style}
   @keyframes moveHorizontal {
     0% {
+        visibility: visible;
         transform: translateX(-${params.width}px);
     }
     100% {
+        visibility: visible;
         transform: translateX(${params.width}px);
     }
   }
     @keyframes moveVertical {
       0% {
+          visibility: visible;
           transform: translateY(-${params.height}px);
       }
       100% {
+          visibility: visible;
           transform: translateY(${params.height}px);
       }
     }
@@ -84,6 +91,11 @@ export const generateSVG = (params: SVGParameters): string => {
   // Calculate normal distribution parameters for stroke width
   const strokeMean = params.avgStrokeWidth;
   const strokeStddev = Math.sqrt(params.avgStrokeWidth / 2);
+  
+  // Calculate triangular distribution parameters for animation speed
+  const animationMin = params.animationSpeedMin;
+  const animationMax = params.animationSpeedMax;
+  const animationMode = (animationMax - animationMin) / 3 + animationMin;
 
   // Generate horizontal lines (first set)
   for (let i = 0; i < params.horizontalLines; i++) {
@@ -110,8 +122,9 @@ export const generateSVG = (params: SVGParameters): string => {
     const color = randomChoice(params.lineColors).replace('#', '');
     const styleName = `horizontal_line_${i}`
     const style = `.${styleName} {
-      animation: moveHorizontal ${randomTriangular(3,6,25)}s linear infinite;
-      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+      visibility: ${params.enableAnimation ? 'hidden' : 'visible'};
+      ${params.enableAnimation ? `animation: moveHorizontal ${randomTriangular(animationMin, animationMax, animationMode)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,4.8)}s` : ''}
     }`  
     styles.push(style)
     lineGroups.push(linesTemplate
@@ -156,8 +169,9 @@ export const generateSVG = (params: SVGParameters): string => {
     const color = randomChoice(params.lineColors).replace('#', '');
     const styleName = `vertical_line_${i}`
     const style = `.${styleName} {
-      animation: moveVertical ${randomTriangular(3,6,25)}s linear infinite;
-      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+      visibility: ${params.enableAnimation ? 'hidden' : 'visible'};
+      ${params.enableAnimation ? `animation: moveVertical ${randomTriangular(animationMin, animationMax, animationMode)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,4.8)}s` : ''}
     }`  
     styles.push(style)
     lineGroups.push(linesTemplate
@@ -194,8 +208,9 @@ export const generateSVG = (params: SVGParameters): string => {
     const color = randomChoice(params.lineColors).replace('#', '');
     const styleName = `vertical_line_${i}`
     const style = `.${styleName} {
-      animation: moveVertical ${randomTriangular(3,6,25)}s linear infinite;
-      animation-delay: ${randomTriangular(0,0.8,1.2)}s
+      visibility: ${params.enableAnimation ? 'hidden' : 'visible'};
+      ${params.enableAnimation ? `animation: moveVertical ${randomTriangular(animationMin, animationMax, animationMode)}s linear infinite;
+      animation-delay: ${randomTriangular(0,0.8,4.8)}s` : ''}
     }`  
     styles.push(style)
     lineGroups.push(linesTemplate
