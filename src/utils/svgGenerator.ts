@@ -98,7 +98,7 @@ export const generateSVG = (params: SVGParameters): string => {
   const animationMode = (animationMax - animationMin) / 3 + animationMin;
 
   // Generate horizontal lines (first set)
-  for (let i = 0; i < params.horizontalLines; i++) {
+  for (let i = 0; i < params.horizontalLines / 4 * 3; i++) {
     const lines: string[] = [];
     const opacity = randomTriangular(0.05, 0.95, params.avgOpacity);
     const lineCount = Math.max(1, Math.floor(1 / opacity));
@@ -117,6 +117,7 @@ export const generateSVG = (params: SVGParameters): string => {
       );
       
     }
+    
     
     const strokeWidth = Math.max(0.1, randomNormal(strokeMean, strokeStddev));
     const color = randomChoice(params.lineColors).replace('#', '');
@@ -139,6 +140,44 @@ export const generateSVG = (params: SVGParameters): string => {
     
   }
 
+  // Generate horizontal lines from edges
+  for (let i = 0; i < Math.floor(params.horizontalLines / 4); i++) {
+    const lines: string[] = [];
+    const opacity = randomTriangular(0.05, 0.95, params.avgOpacity);
+    const lineCount = Math.max(1, Math.floor(1 / opacity));
+    
+    for (let j = 0; j < lineCount; j++) {
+      const y = randomInt(1, params.width);
+      
+      
+      // Left edge lines
+      const x1 = randomInt(0, Math.floor(params.width * 0.25));
+      lines.push(singleLineTemplateH
+        .replace('{xstart}', "0")
+        .replace('{y}', y.toString())
+        .replace('{xend}', x1.toString())
+      );
+      
+      // Right edge lines
+      const x2 = params.width - randomInt(0, Math.floor(params.width * 0.25));
+      lines.push(singleLineTemplateH
+        .replace('{xstart}', x2.toString())
+        .replace('{y}', y.toString())
+        .replace('{xend}', params.width.toString())
+      );
+    }
+    
+    const strokeWidth = Math.max(0.1, randomNormal(strokeMean * 0.63, strokeStddev * 0.63));
+    const color = randomChoice(params.lineColors).replace('#', '');
+    
+    lineGroups.push(linesTemplate
+      .replace('{opacity}', opacity.toString())
+      .replace('{width}', strokeWidth.toString())
+      .replace('{color}', color)
+      .replace('{the_lines}', lines.join(' '))
+    );
+  }
+
   // Generate vertical lines from edges
   for (let i = 0; i < Math.floor(params.verticalLines / 3); i++) {
     const lines: string[] = [];
@@ -151,17 +190,17 @@ export const generateSVG = (params: SVGParameters): string => {
       // Left edge lines
       const x1 = randomInt(0, Math.floor(params.width * 0.25));
       lines.push(singleLineTemplateV
-        .replace('{ystart}', '0')
-        .replace('{x}', y.toString())
+        .replace('{ystart}', y.toString())
+        .replace('{x}', '0')
         .replace('{yend}', x1.toString())
       );
       
       // Right edge lines
       const x2 = params.width - randomInt(0, Math.floor(params.width * 0.25));
       lines.push(singleLineTemplateV
-        .replace('{ystart}', x2.toString())
-        .replace('{x}', y.toString())
-        .replace('{yend}', "200")
+        .replace('{ystart}', y.toString())
+        .replace('{x}', x2.toString())
+        .replace('{yend}', params.height.toString())
       );
     }
     
