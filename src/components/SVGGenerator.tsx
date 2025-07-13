@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, RefreshCw } from 'lucide-react';
 import { ColorInput } from './ColorInput';
+import { Checkbox } from '@/components/ui/checkbox';
 import { generateSVG } from '../utils/svgGenerator';
 
 interface SVGParameters {
@@ -16,6 +17,9 @@ interface SVGParameters {
   avgOpacity: number;
   backgroundColor: string;
   lineColors: string[];
+  enableAnimation: boolean;
+  animationSpeedMin: number;
+  animationSpeedMax: number;
 }
 
 const defaultParams: SVGParameters = {
@@ -26,7 +30,10 @@ const defaultParams: SVGParameters = {
   avgStrokeWidth: 1.0,
   avgOpacity: 0.65,
   backgroundColor: '#5e666e',
-  lineColors: ['#ce8e3b', '#d1d9ff', '#d1cbc7', '#000000']
+  lineColors: ['#ce8e3b', '#d1d9ff', '#d1cbc7', '#000000'],
+  enableAnimation: false,
+  animationSpeedMin: 3.0,
+  animationSpeedMax: 8.0
 };
 
 export const SVGGenerator: React.FC = () => {
@@ -176,6 +183,48 @@ export const SVGGenerator: React.FC = () => {
             />
           </div>
 
+          {/* Animation Controls */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="enableAnimation"
+                checked={params.enableAnimation}
+                onCheckedChange={(checked) => updateParam('enableAnimation', !!checked)}
+              />
+              <Label htmlFor="enableAnimation" className="text-sm font-medium">
+                Enable Animation
+              </Label>
+            </div>
+            {params.enableAnimation && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="animationSpeedMin" className="text-sm font-medium">Min Speed (seconds)</Label>
+                  <Input
+                    id="animationSpeedMin"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={params.animationSpeedMin}
+                    onChange={(e) => updateParam('animationSpeedMin', parseFloat(e.target.value) || 0.1)}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="animationSpeedMax" className="text-sm font-medium">Max Speed (seconds)</Label>
+                  <Input
+                    id="animationSpeedMax"
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    value={params.animationSpeedMax}
+                    onChange={(e) => updateParam('animationSpeedMax', parseFloat(e.target.value) || 0.1)}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Line Colors */}
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -205,16 +254,16 @@ export const SVGGenerator: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            <Button onClick={generateArt} className="flex-1" variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Regenerate
-            </Button>
-            <Button onClick={downloadSVG} className="flex-1">
-              <Download className="w-4 h-4 mr-2" />
-              Download SVG
-            </Button>
-          </div>
+          <div className="flex flex-wrap gap-3 pt-4">
+          <Button onClick={generateArt} className="flex-1 min-w-0" variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Regenerate
+          </Button>
+          <Button onClick={downloadSVG} className="flex-1 min-w-[140px]">
+            <Download className="w-4 h-4 mr-2" />
+            Download SVG
+          </Button>
+        </div>
         </CardContent>
       </Card>
 
